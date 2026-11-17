@@ -68,3 +68,24 @@ def test_population_weighted_rates_and_wellness():
 def test_password_change_revokes_session():
  c=client('facility@test.org');r=c.post('/api/auth/password',json={'current_password':'TestingStrong123!','new_password':'AChangedPassword123!'});assert r.status_code==200
  assert c.get('/api/reference').status_code==401
+
+def test_facility_specific_population_targets_without_reports():
+ c=client('admin@test.org');d=c.get('/api/dashboard?year=2026&month=11').json()
+ assert 'population' not in d and 'facilities' not in d
+ assert len(d['comparisons'])==25
+ asafo=next(f for f in d['comparisons'] if f['name']=='Asafo Hc')
+ tawora=next(f for f in d['comparisons'] if f['name']=='Tawora Chps')
+ a=asafo['indicators'];t=tawora['indicators']
+ # Asafo: 2089.4 U5; 1932.695 aged 6–59 months (source workbook).
+ assert a[1]['denominator']==2089.4 and a[1]['target_count']==209 and a[1]['expected_count']==192
+ assert a[3]['target_count']==1547 and a[3]['expected_count']==1289
+ assert t[1]['target_count']==49 and t[3]['target_count']==363
+ assert a[1]['value'] is None and a[1]['status']=='no_data'
+ scoped=c.get('/api/dashboard?year=2026&month=11&facility_id=1').json()
+ assert scoped['indicators'][1]['target_count']==209
+ # Ratio thresholds continue to use clinical reporting denominators, not population.
+ assert a[0]['denominator']==0 and a[0]['target_count'] is None
+ # January and July both begin a fresh Vitamin A milestone cycle.
+ assert calculate(INDICATORS[3],0,1932.695,1,False)['expected_count']==258
+ assert calculate(INDICATORS[3],0,1932.695,7,False)['expected_count']==258
+ assert calculate(INDICATORS[2],0,101,1)['target_count']==35

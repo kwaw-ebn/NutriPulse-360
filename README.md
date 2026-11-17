@@ -19,6 +19,10 @@ Developed by **Ebenezer Kwaw | EK Synergy Ltd** for Agona East District Health D
 - Approved-data dashboards, monthly reporting completeness, trends, facility comparisons, Excel/PDF exports and audit activity.
 - 25 facilities across Asafo, Duakwa/Mensakrom, Kwanyako, Mankrong and Nsaba, imported from the supplied 2025 workbook.
 
+## Facility target counts
+
+The dashboard omits district population and facility-scope summary cards. Its facility comparison lists the annual stunting assessment and six-month Vitamin A counts for every facility, even before reports exist. Each uses that facility's uploaded under-five or 6–59 month population, multiplied by 10% or 80%. Counts and elapsed-period milestones round up to whole children. Missing reports remain missing performance. Clinical ratios retain their report-based denominators; lower-is-better maximum count thresholds round down. Excel exports include a Facility targets sheet.
+
 ## Source data decisions
 
 The approved district population is **108,787** for **2025**. Facility populations sum to **108,768**; Sheet1's district total is **108,767**. Imported facility age-group populations are preserved from Sheet2 (under-five and 6–59 month columns) and are not silently reconciled. Several workbook cells have inconsistent age-group calculations. A district data officer must approve corrections before operational use. No annual population growth rate is assumed.

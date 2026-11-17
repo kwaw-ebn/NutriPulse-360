@@ -37,8 +37,8 @@ def results(s,facilities,year,month,module,extra=None):
   n=sum(r.data.get(d['numerator'],0) for r in rr)
   if d['period']=='ratio':den=sum(r.data.get(d['denominator'],0) for r in rr)
   elif d['code']=='3.31':den=cfg.get('wellness_population') if cfg.get('wellness_facility_id') in ids else None
-  else:den=sum(getattr(f,d['denominator']) for f in facilities) if rr else None
-  out.append(calculate(d,n,den,month))
+  else:den=sum(getattr(f,d['denominator']) for f in facilities) or None
+  out.append(calculate(d,n,den,month,has_data=bool(rr)))
  return out
 
 def serialize(r):return {k:getattr(r,k) for k in ['id','facility_id','year','month','module','status','data','updated_at','review_comment']}
@@ -120,7 +120,7 @@ def dashboard(year:int=Query(default=2026,ge=2025,le=2100),month:int=Query(defau
  trend=[]
  for m in range(1,month+1):
   r=results(s,fs,year,m,'nutrition');trend.append({'month':m,'breastfeeding':r[0]['value'],'anaemia':r[2]['value'],'vitamin_a':r[3]['value']})
- return {'population':108787,'facilities':len(fs),'expected_reports':expected,'submitted_reports':submitted,'completeness':round(100*submitted/expected,1) if expected else 0,'pending':sum(r.status=='submitted' for r in rs),'open_actions':len(acts),'overdue_actions':sum(a.details.get('deadline','9999')<date.today().isoformat() for a in acts),'indicators':results(s,fs,year,month,'nutrition')+results(s,fs,year,month,'wellness'),'trend':trend,'comparisons':[{'name':f.name,'subdistrict':f.subdistrict,'indicators':results(s,[f],year,month,'nutrition')} for f in fs]}
+ return {'expected_reports':expected,'submitted_reports':submitted,'completeness':round(100*submitted/expected,1) if expected else 0,'pending':sum(r.status=='submitted' for r in rs),'open_actions':len(acts),'overdue_actions':sum(a.details.get('deadline','9999')<date.today().isoformat() for a in acts),'indicators':results(s,fs,year,month,'nutrition')+results(s,fs,year,month,'wellness'),'trend':trend,'comparisons':[{'name':f.name,'subdistrict':f.subdistrict,'indicators':results(s,[f],year,month,'nutrition')} for f in fs]}
 class ReportInput(BaseModel):
  model_config=ConfigDict(extra='forbid')
  facility_id:int;year:int=Field(ge=2025,le=2100);month:int=Field(ge=1,le=12);module:Literal['nutrition','wellness'];data:dict[str,int]
@@ -232,6 +232,12 @@ def export(kind:Literal['xlsx','pdf'],year:int=2026,month:int=1,u=Depends(curren
   for row in rows:sh.append(row)
   for c in sh[1]:c.font=Font(bold=True,color='FFFFFF');c.fill=PatternFill('solid',fgColor='102C3A')
   for col,width in {'A':12,'B':42,'C':18,'D':18,'E':16,'F':16,'G':22}.items():sh.column_dimensions[col].width=width
+  targets=w.create_sheet('Facility targets');targets.append(['Facility','Subdistrict','Code','Indicator','Eligible denominator','Full-period target count','Expected count to month','Actual count','Status'])
+  for facility in fs:
+   for result in results(s,[facility],year,month,'nutrition'):
+    targets.append([facility.name,facility.subdistrict,result['code'],result['name'],result['denominator'],result['target_count'],result['expected_count'],result['numerator'] if result['has_data'] else None,result['status']])
+  for col,width in {'A':26,'B':22,'C':12,'D':36,'E':24,'F':26,'G':26,'H':16,'I':20}.items():targets.column_dimensions[col].width=width
+  targets.freeze_panes='A2'
   sh.freeze_panes='A2';notes=w.create_sheet('Notes');notes.append(['Year',year]);notes.append(['Month',month]);notes.append(['Scope',', '.join(f.name for f in fs)]);notes.append(['Basis','Approved reports only; population denominators: 2025 source baseline']);w.save(buf)
  else:
   from reportlab.platypus import SimpleDocTemplate,Paragraph,Table,TableStyle,Spacer

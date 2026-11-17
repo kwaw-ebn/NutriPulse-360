@@ -13,15 +13,21 @@ FIELDS={
  'wellness':[
  ('wellness_unique','New unique eligible attendees this year','Attendance'),('visits','Total wellness visits (including repeat visits)','Attendance'),('male','Male visits','Attendance'),('female','Female visits','Attendance'),('bp_screened','Blood pressure screenings','Screening & follow-up'),('glucose_screened','Blood glucose screenings','Screening & follow-up'),('bmi_screened','BMI assessments','Screening & follow-up'),('counselled','Nutrition / lifestyle counselling','Screening & follow-up'),('referred','Clients referred','Screening & follow-up'),('diabetes_opd','Diabetes OPD cases — descriptive only','OPD context'),('hypertension_opd','Hypertension OPD cases — descriptive only','OPD context'),('total_opd','Total OPD attendance','OPD context')]}
 
-def calculate(definition,numerator,denominator,month):
+def calculate(definition,numerator,denominator,month,has_data=True):
  d=definition
  expected=d['target']*(month/12 if d['period']=='annual' else (((month-1)%6+1)/6) if d['period']=='half' else 1)
- value=100*numerator/denominator if denominator and denominator>0 else None
- if value is None: status='not_configured' if d['code']=='3.31' else 'no_data'
+ value=100*numerator/denominator if has_data and denominator and denominator>0 else None
+ if value is None: status='not_configured' if d['code']=='3.31' and not denominator else 'no_data'
  else:
   met=value<=expected if d['direction']=='lower' else value>=expected
   status='achieved' if met else 'below_target'
- return {**d,'numerator':numerator,'denominator':denominator,'value':round(value,2) if value is not None else None,'expected':round(expected,2),'status':status}
+ from decimal import Decimal,ROUND_CEILING,ROUND_FLOOR
+ rounding=ROUND_CEILING if d['direction']=='higher' else ROUND_FLOOR
+ def count(percent):
+  return int((Decimal(str(denominator))*percent/100).to_integral_value(rounding=rounding)) if denominator and denominator>0 else None
+ full=Decimal(str(d['target']))
+ elapsed=Decimal(month)/12 if d['period']=='annual' else Decimal((month-1)%6+1)/6 if d['period']=='half' else Decimal(1)
+ return {**d,'has_data':has_data,'target_count':count(full),'expected_count':count(full*elapsed),'numerator':numerator,'denominator':denominator,'value':round(value,2) if value is not None else None,'expected':round(expected,2),'status':status}
 
 def validate_counts(module,data):
  allowed={x[0] for x in FIELDS[module]}
