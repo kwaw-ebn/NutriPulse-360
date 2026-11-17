@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "name": "Asafo Hc",
+    "subdistrict": "Asafo",
+    "population": 10447,
+    "under5": 2089.4,
+    "vitamin_a_population": 1932.695
+  },
+  {
+    "id": 2,
+    "name": "Tawora Chps",
+    "subdistrict": "Asafo",
+    "population": 2447,
+    "under5": 489.40000000000003,
+    "vitamin_a_population": 452.695
+  },
+  {
+    "id": 3,
+    "name": "Kwansakrom chps",
+    "subdistrict": "Asafo",
+    "population": 3885,
+    "under5": 777,
+    "vitamin_a_population": 718.725
+  },
+  {
+    "id": 4,
+    "name": "Brahabekum chps",
+    "subdistrict": "Asafo",
+    "population": 935,
+    "under5": 187,
+    "vitamin_a_population": 172.975
+  },
+  {
+    "id": 5,
+    "name": "Salvation Hospital",
+    "subdistrict": "Duakwa/Mensakrom",
+    "population": 23473,
+    "under5": 4694.6,
+    "vitamin_a_population": 4342.505
+  },
+  {
+    "id": 6,
+    "name": "Mensakrom HC",
+    "subdistrict": "Duakwa/Mensakrom",
+    "population": 4206,
+    "under5": 841.2,
+    "vitamin_a_population": 778.11
+  },
+  {
+    "id": 7,
+    "name": "Mansofo chps",
+    "subdistrict": "Duakwa/Mensakrom",
+    "population": 1081,
+    "under5": 216.20000000000002,
+    "vitamin_a_population": 199.98499999999999
+  },
+  {
+    "id": 8,
+    "name": "Namawora chps",
+    "subdistrict": "Duakwa/Mensakrom",
+    "population": 2121,
+    "under5": 424.20000000000005,
+    "vitamin_a_population": 392.385
+  },
+  {
+    "id": 9,
+    "name": "Jacob chps",
+    "subdistrict": "Duakwa/Mensakrom",
+    "population": 899,
+    "under5": 179.8,
+    "vitamin_a_population": 166.315
+  },
+  {
+    "id": 10,
+    "name": "Kwanyako HC",
+    "subdistrict": "Kwanyako",
+    "population": 16005,
+    "under5": 3201,
+    "vitamin_a_population": 2960.925
+  },
+  {
+    "id": 11,
+    "name": "Kwesitwikwa chps",
+    "subdistrict": "Kwanyako",
+    "population": 1507,
+    "under5": 301.40000000000003,
+    "vitamin_a_population": 278.795
+  },
+  {
+    "id": 12,
+    "name": "Otweakwa chps",
+    "subdistrict": "Kwanyako",
+    "population": 1225,
+    "under5": 245,
+    "vitamin_a_population": 226.625
+  },
+  {
+    "id": 13,
+    "name": "Kokoado chps",
+    "subdistrict": "Kwanyako",
+    "population": 3228,
+    "under5": 645.6,
+    "vitamin_a_population": 597.18
+  },
+  {
+    "id": 14,
+    "name": "Suromanya chps",
+    "subdistrict": "Kwanyako",
+    "population": 1925,
+    "under5": 385,
+    "vitamin_a_population": 356.125
+  },
+  {
+    "id": 15,
+    "name": "Mankrong Poly",
+    "subdistrict": "Mankrong",
+    "population": 5329,
+    "under5": 1065.8,
+    "vitamin_a_population": 985.865
+  },
+  {
+    "id": 16,
+    "name": "Fante Bawjiase",
+    "subdistrict": "Mankrong",
+    "population": 2669,
+    "under5": 533.8000000000001,
+    "vitamin_a_population": 493.765
+  },
+  {
+    "id": 17,
+    "name": "Oboyambo chps",
+    "subdistrict": "Mankrong",
+    "population": 914,
+    "under5": 182.8,
+    "vitamin_a_population": 169.09
+  },
+  {
+    "id": 18,
+    "name": "Kenyankor chps",
+    "subdistrict": "Mankrong",
+    "population": 2465,
+    "under5": 493,
+    "vitamin_a_population": 456.025
+  },
+  {
+    "id": 19,
+    "name": "Esusu chps",
+    "subdistrict": "Mankrong",
+    "population": 758,
+    "under5": 151.6,
+    "vitamin_a_population": 140.23
+  },
+  {
+    "id": 20,
+    "name": "Nsaab Hc",
+    "subdistrict": "Nsaba",
+    "population": 16583,
+    "under5": 3316.6000000000004,
+    "vitamin_a_population": 3067.855
+  },
+  {
+    "id": 21,
+    "name": "Ofoase chps",
+    "subdistrict": "Nsaba",
+    "population": 1413,
+    "under5": 282.6,
+    "vitamin_a_population": 261.405
+  },
+  {
+    "id": 22,
+    "name": "Nkran Ekura",
+    "subdistrict": "Nsaba",
+    "population": 774,
+    "under5": 154.8,
+    "vitamin_a_population": 143.19
+  },
+  {
+    "id": 23,
+    "name": "Kwesi Painstil",
+    "subdistrict": "Nsaba",
+    "population": 1218,
+    "under5": 243.60000000000002,
+    "vitamin_a_population": 225.32999999999998
+  },
+  {
+    "id": 24,
+    "name": "Ninta Chps",
+    "subdistrict": "Nsaba",
+    "population": 1738,
+    "under5": 347.6,
+    "vitamin_a_population": 321.53
+  },
+  {
+    "id": 25,
+    "name": "Duabone",
+    "subdistrict": "Nsaba",
+    "population": 1523,
+    "under5": 304.6,
+    "vitamin_a_population": 281.755
+  }
+]
