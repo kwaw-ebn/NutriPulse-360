@@ -1,7 +1,7 @@
 type Props={data:Record<string,number>;details:Record<string,string>;template:any;onData?:(x:Record<string,number>)=>void;onDetails?:(x:Record<string,string>)=>void;readOnly?:boolean};
 export default function WellnessForm({data,details,template,onData,onDetails,readOnly=false}:Props){
  const screenings=template.screenings as [string,string][],outcomes=template.outcomes as [string,string][],services=template.services as [string,string][];
- const n=(key:string)=>data[key]??0;
+ const n=(key:string)=>Number(data[key]||0);
  const sum=(keys:string[])=>keys.reduce((a,k)=>a+n(k),0);
  const count=(key:string,label:string)=><input aria-label={label} type="number" min="0" step="1" readOnly={readOnly} value={data[key]??0} onChange={e=>{const next={...data,[key]:e.target.value===''?'':Number(e.target.value)} as Record<string,number>;const aliases:Record<string,string>={attendance_diabetes_male:'glucose_screened',attendance_diabetes_female:'glucose_screened',attendance_hypertension_male:'bp_screened',attendance_hypertension_female:'bp_screened',attendance_bmi_male:'bmi_screened',attendance_bmi_female:'bmi_screened'};if(aliases[key]){const stem=key.replace(/_(male|female)$/,'');next[aliases[key]]=Number(next[stem+'_male']||0)+Number(next[stem+'_female']||0)}onData?.(next)}}/>;
  const text=(key:string,label:string,type='text')=><label>{label}<input type={type} readOnly={readOnly} value={details[key]||''} onChange={e=>onDetails?.({...details,[key]:e.target.value})}/></label>;
