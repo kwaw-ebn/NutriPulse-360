@@ -12,7 +12,7 @@ Developed by **Ebenezer Kwaw | EK Synergy Ltd** for Agona East District Health D
 - FastAPI + SQLAlchemy + Alembic; Neon PostgreSQL persistence.
 - District, subdistrict and facility roles, server-enforced reporting scopes.
 - Password hashing (scrypt), HTTP-only expiring cookies, CSRF tokens, login throttling and password change with session invalidation.
-- Core nutrition aggregate reporting: breastfeeding, growth monitoring, Vitamin A, anaemia, IYCF and rehabilitation; provisional aggregate Wellness Clinic reporting.
+- Core nutrition aggregate reporting: breastfeeding, growth monitoring, Vitamin A, anaemia, IYCF and rehabilitation; Wellness Clinic reporting matching the uploaded Registrants, Attendance, Screening outcomes and Interventions/services tables, with compilation and certification details.
 - Draft → submitted → approved / returned workflow. A second district officer approves an author's report.
 - Indicator-specific cumulative calculations, lower-is-better assessment, annual and six-month milestones. Ratios use summed numerators and denominators, never averages of facility rates.
 - Seven-field mandatory corrective action plans on below-target or missing-measure results; persistent actions across reporting periods; district closure and complete follow-up history.
@@ -96,4 +96,8 @@ Free Render services may sleep after inactivity and take time to wake up. Databa
 
 ## Limits before operational rollout
 
-This is an MVP, not a production-readiness certification. The complete immunization, school-health, commodities and detailed age/sex breakdown sections in the original nutrition worksheet are not yet implemented. A dedicated Wellness Clinic reporting document was not provided; its form is provisional. Population editing/import reconciliation, approved projections, scheduled notifications, email password reset, deactivation UI and backup/restore drills remain rollout work. Review district data governance, finalize denominator definitions, configure backup retention and test recovery with the hosting owner before entering real operational data. Do not enter patient names, phone numbers or identifiers in free-text fields.
+This is an MVP, not a production-readiness certification. The complete immunization, school-health, commodities and detailed age/sex breakdown sections in the original nutrition worksheet are not yet implemented. Population editing/import reconciliation, approved projections, scheduled notifications, email password reset, deactivation UI and backup/restore drills remain rollout work. Review district data governance, finalize denominator definitions, configure backup retention and test recovery with the hosting owner before entering real operational data. Do not enter patient names, phone numbers or identifiers in free-text fields.
+
+## Wellness Clinic source format
+
+The Wellness Clinic form follows `REPORTING FORMAT FOR WELLNESS CLINIC(1).docx`: separate registrants and attendance tables for diabetes, hypertension, height, weight, BMI, skin diseases, anaemia and others; male/female moderate, severe and normal outcomes for diabetes, hypertension, BMI, anaemia and others; counselling, referral, therapy and other services with remarks; reporting date, compiled by, phone and certified by. Totals are calculated from entered rows. Source spelling errors are corrected in labels without changing categories. Outcome classifications come from registers, not automated clinical diagnosis. Screening totals may include multiple services for one person and never substitute for deduplicated annual attendance in indicator 3.31. Aggregate form metadata is stored within the existing report JSON; no schema migration or report deletion is required.

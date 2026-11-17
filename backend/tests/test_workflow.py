@@ -89,3 +89,23 @@ def test_facility_specific_population_targets_without_reports():
  assert calculate(INDICATORS[3],0,1932.695,1,False)['expected_count']==258
  assert calculate(INDICATORS[3],0,1932.695,7,False)['expected_count']==258
  assert calculate(INDICATORS[2],0,101,1)['target_count']==35
+
+def test_uploaded_wellness_format_persistence_and_validation():
+ c=client('admin@test.org')
+ assert c.put('/api/settings',json={'wellness_facility_id':1,'wellness_population':1000}).status_code==200
+ d={k:0 for k,_,_ in FIELDS['wellness']}
+ d.update(wellness_unique=10,visits=10,male=5,female=5,attendance_diabetes_count=10,attendance_diabetes_male=5,attendance_diabetes_female=5,outcome_diabetes_male_normal=5,outcome_diabetes_female_normal=5,counselled=8,therapy=2)
+ details={'reporting_date':'2026-01-31','compiled_by':'Officer A','certified_by':'Officer B','phone':'','remarks_counselled':'Group counselling provided'}
+ b={'facility_id':1,'year':2026,'month':1,'module':'wellness','data':d,'template_details':details,'submit':False}
+ r=c.post('/api/reports',json=b);assert r.status_code==200,r.text
+ saved=r.json()['report'];assert saved['template_details']==details and saved['data']==d
+ assert c.get('/api/reports?year=2026').json()[0]['template_details']==details
+ # A saved draft remains editable with the expanded source format.
+ b['data']['therapy']=3
+ assert c.post('/api/reports',json=b).status_code==200
+ b['data']['outcome_diabetes_male_normal']=6
+ assert c.post('/api/reports',json=b).status_code==422
+ b['data']['outcome_diabetes_male_normal']=5;b['data']['attendance_diabetes_male']=11
+ assert c.post('/api/reports',json=b).status_code==422
+ b['data']['attendance_diabetes_male']=5;b['template_details']['reporting_date']='not-a-date'
+ assert c.post('/api/reports',json=b).status_code==422

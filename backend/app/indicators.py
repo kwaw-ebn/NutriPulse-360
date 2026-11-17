@@ -13,6 +13,9 @@ FIELDS={
  'wellness':[
  ('wellness_unique','New unique eligible attendees this year','Attendance'),('visits','Total wellness visits (including repeat visits)','Attendance'),('male','Male visits','Attendance'),('female','Female visits','Attendance'),('bp_screened','Blood pressure screenings','Screening & follow-up'),('glucose_screened','Blood glucose screenings','Screening & follow-up'),('bmi_screened','BMI assessments','Screening & follow-up'),('counselled','Nutrition / lifestyle counselling','Screening & follow-up'),('referred','Clients referred','Screening & follow-up'),('diabetes_opd','Diabetes OPD cases — descriptive only','OPD context'),('hypertension_opd','Hypertension OPD cases — descriptive only','OPD context'),('total_opd','Total OPD attendance','OPD context')]}
 
+from .wellness import FIELDS as WELLNESS_FIELDS,validate as validate_wellness
+FIELDS['wellness'].extend(WELLNESS_FIELDS)
+
 def calculate(definition,numerator,denominator,month,has_data=True):
  d=definition
  expected=d['target']*(month/12 if d['period']=='annual' else (((month-1)%6+1)/6) if d['period']=='half' else 1)
@@ -37,4 +40,5 @@ def validate_counts(module,data):
  if module=='wellness':pairs=[('wellness_unique','visits'),('referred','visits'),('counselled','visits'),('bp_screened','visits'),('glucose_screened','visits'),('bmi_screened','visits')]
  for a,b in pairs:
   if data.get(a,0)>data.get(b,0):raise ValueError(f'{a} cannot exceed {b}')
+ if module=='wellness':validate_wellness(data)
  if module=='wellness' and data.get('male',0)+data.get('female',0)!=data.get('visits',0):raise ValueError('Male + female visits must equal total visits')

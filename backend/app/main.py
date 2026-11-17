@@ -13,6 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from .db import Session,engine,Facility,User,Report,Action,Audit,Setting,LoginAttempt,ActionFollowup,ReviewRecord
 from .security import db,current_user,admin,hash_password,verify_password,issue_token
 from .indicators import INDICATORS,FIELDS,calculate,validate_counts
+from .wellness import SCREENINGS,OUTCOMES,SERVICES,DETAIL_KEYS
 ROOT=Path(__file__).resolve().parents[2]
 def now():return datetime.now(timezone.utc).isoformat()
 def audit(s,u,event,oid=''):
@@ -41,7 +42,8 @@ def results(s,facilities,year,month,module,extra=None):
   out.append(calculate(d,n,den,month,has_data=bool(rr)))
  return out
 
-def serialize(r):return {k:getattr(r,k) for k in ['id','facility_id','year','month','module','status','data','updated_at','review_comment']}
+def serialize(r):
+ return {**{k:getattr(r,k) for k in ['id','facility_id','year','month','module','status','updated_at','review_comment']},'data':{k:v for k,v in r.data.items() if k!='_template'},'template_details':r.data.get('_template',{})}
 def seed():
  with Session() as s:
   if not s.scalar(select(func.count(Facility.id))):
@@ -101,11 +103,11 @@ def change_password(body:PasswordChange,u=Depends(current_user),s=Depends(db)):
 @app.get('/api/reference')
 def reference(u=Depends(current_user),s=Depends(db)):
  facilities=visible(s,u)
- return {'facilities':[{k:getattr(f,k) for k in ['id','name','subdistrict','population','under5','vitamin_a_population']} for f in facilities],'indicators':INDICATORS,'fields':FIELDS,'config':settings(s),'warnings':[
+ return {'facilities':[{k:getattr(f,k) for k in ['id','name','subdistrict','population','under5','vitamin_a_population']} for f in facilities],'indicators':INDICATORS,'fields':FIELDS,'wellness_template':{'screenings':SCREENINGS,'outcomes':OUTCOMES,'services':SERVICES},'config':settings(s),'warnings':[
  'Approved district baseline: 108,787 (2025). Facility populations sum to 108,768; Sheet1 district total is 108,767. No automatic redistribution has been applied.',
  'Imported age-group denominators are baseline source values. Several workbook cells are inconsistent; confirm them before operational reporting. Future growth projections are not approved.',
  'The nutrition template records initiation within 3 minutes; indicator 1.16 requires within 1 hour. The MVP collects both separately.',
- 'Wellness form is a provisional aggregate MVP format. A dedicated Wellness Clinic reporting template was not supplied. Diabetes and hypertension ranges have unspecified units and are not scored.',
+ 'Wellness tables follow the supplied reporting format. Screening table totals count service records and may include the same person more than once; use separate unique-attendee counts for indicator 3.31. Diabetes and hypertension target ranges have unspecified units and are not scored.',
  'Unique annual and half-year counts must exclude people counted in earlier months. No patient identifiers are stored.' ]}
 @app.get('/api/dashboard')
 def dashboard(year:int=Query(default=2026,ge=2025,le=2100),month:int=Query(default=1,ge=1,le=12),subdistrict:str='',facility_id:int=0,u=Depends(current_user),s=Depends(db)):
@@ -127,6 +129,7 @@ class ReportInput(BaseModel):
  actions:dict[str,dict[str,str]]=Field(default_factory=dict)
  submit:bool=False
  attested:bool=False
+ template_details:dict[str,str]=Field(default_factory=dict)
 ACTION_KEYS=['what_went_wrong','reasons','corrective_actions','next_month','responsible_officer','deadline','support_required']
 @app.post('/api/reports')
 def save_report(body:ReportInput,u=Depends(current_user),s=Depends(db)):
@@ -140,7 +143,13 @@ def save_report(body:ReportInput,u=Depends(current_user),s=Depends(db)):
  r=s.scalar(select(Report).where(Report.facility_id==body.facility_id,Report.year==body.year,Report.month==body.month,Report.module==body.module))
  if r and r.status in ['approved','submitted']:raise HTTPException(409,'Report is locked for review. Ask the district officer to return it.')
  if not r:r=Report(facility_id=body.facility_id,year=body.year,month=body.month,module=body.module,created_by=u.id,status='draft');s.add(r)
- r.data=body.data;r.updated_at=now();s.flush()
+ if body.module=='wellness':
+  if set(body.template_details)-DETAIL_KEYS or any(len(v)>3000 for v in body.template_details.values()):raise HTTPException(422,'Invalid Wellness Clinic reporting details')
+  if body.template_details.get('reporting_date'):
+   try:date.fromisoformat(body.template_details['reporting_date'])
+   except ValueError:raise HTTPException(422,'Invalid date of reporting')
+  if body.submit and any(not body.template_details.get(k,'').strip() for k in ['reporting_date','compiled_by','certified_by']):raise HTTPException(422,'Complete reporting date, compiled by and certified by before submission')
+ r.data={**body.data,**({'_template':body.template_details} if body.module=='wellness' else {})};r.updated_at=now();s.flush()
  f=s.get(Facility,body.facility_id);calc=results(s,[f],body.year,body.month,body.module,r)
  # A nil denominator with positive numerator is invalid, and absent measures require an explanation before submission.
  if any(x['period'] in ['annual','half'] and x['denominator'] and x['numerator']>x['denominator'] for x in calc):
